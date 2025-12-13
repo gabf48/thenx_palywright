@@ -23,25 +23,24 @@ export class Scraping {
                 await products.nth(i).scrollIntoViewIfNeeded();
                 await products.nth(i).click();
 
-                // așteaptă pagina produsului
+                // wait load product details
                 await this.page.waitForSelector(
                     productLocators.productTitle,
                     { timeout: 15000 }
                 );
 
-                // TEXT
+                // TITLE
                 const titleText = await this.safeText(
                     this.page.locator(productLocators.productTitle)
                 );
                    
-                
+                // DESCRIPTION
                 const descriptionText =
                 (await this.safeText(this.page.locator(productLocators.productDescription))) ||
                 (await this.safeText(this.page.locator(productLocators.productDescription_2)));
-                const rawPrice = await this.safeText(
-                    this.page.locator(productLocators.productPrice)
-                );
 
+                // PRICE
+                const rawPrice = await this.safeText(this.page.locator(productLocators.productPrice));
                 const priceText = this.normalizePrice(rawPrice);
 
                 // IMAGES
@@ -70,7 +69,7 @@ export class Scraping {
                 await this.page.waitForTimeout(500);
             }
 
-        //     // NEXT PAGE
+             // NEXT PAGE
             const nextButton = this.page.locator(paginationLocators.nextPage);
             if (await nextButton.count() === 0) break;
 
@@ -103,10 +102,10 @@ export class Scraping {
         if (!rawPrice) return '';
 
         return rawPrice
-            .replace(/\s+/g, '')   // elimină spații
-            .replace('RON', '')    // elimină moneda
-            .replace(/\./g, '')    // elimină separatori de mii
-            .replace(',', '.')     // , → .
+            .replace(/\s+/g, '')   
+            .replace('RON', '')    
+            .replace(/\./g, '')    
+            .replace(',', '.')     
             .trim();
     }
 
