@@ -1,5 +1,7 @@
 import { chromium } from 'playwright';
 import { LoginPage } from '../pages/LoginPage.js';
+import { BasePage } from '../pages/BasePage.js';
+import { Scraping } from '../pages/Scapping.js';
 import 'dotenv/config';
 
 (async () => {
@@ -20,29 +22,24 @@ import 'dotenv/config';
 
   const page = await context.newPage();
   const loginPage = new LoginPage(page);
+  const basePage = new BasePage(page);
+  const scraping = new Scraping(page);
 
   let success = false;
 
   try {
-    // 3️⃣ Open login page
-    await loginPage.open(process.env.URL_LOGIN);
-
-    // 4️⃣ Login
-    await loginPage.login(
-      process.env.LOGIN_EMAIL,
-      process.env.LOGIN_PASSWORD
-    );
-
-    // 5️⃣ Aici poți adăuga scraping
-    // ex: await scrapeProducts(page);
-
+    await basePage.open(process.env.URL_LOGIN);
+    await loginPage.login(process.env.LOGIN_EMAIL, process.env.LOGIN_PASSWORD);
+    await basePage.open(process.env.URL_BATTERY)
+    await scraping.extractProducts()
+    
     success = true;
     console.log('Scraping completed successfully!');
   } catch (error) {
     console.error('Error during scraping:', error);
     success = false;
   } finally {
-    // 6️⃣ Închide browserul doar pe CI/CD
+    // Close browser only on CI/CD
     if (isCI) {
       await browser.close();
     } else {
@@ -50,6 +47,6 @@ import 'dotenv/config';
     }
   }
 
-  // 7️⃣ Set exit code corect pentru pass/fail
+  // 7️⃣ Set exit code correct for pass/fail
   process.exitCode = success ? 0 : 1;
 })();

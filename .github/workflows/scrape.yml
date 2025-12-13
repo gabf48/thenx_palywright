@@ -29,6 +29,7 @@ jobs:
           LOGIN_EMAIL: ${{ secrets.LOGIN_EMAIL }}
           LOGIN_PASSWORD: ${{ secrets.LOGIN_PASSWORD }}
           URL_LOGIN: ${{ secrets.URL_LOGIN }}
+          URL_BATTERY: ${{ secrets.URL_BATTERY }}
         run: npm run scrape
 
       # 6️⃣ Upload rezultate

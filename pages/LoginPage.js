@@ -5,10 +5,6 @@ export class LoginPage {
     this.page = page;
   }
 
-  async open(url) {
-    await this.page.goto(url);
-  }
-
   async login(username, password) {
     await this.page.waitForSelector(loginLocators.acceptCookies);
     await this.page.click(loginLocators.acceptCookies);
