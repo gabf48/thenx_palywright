@@ -14,13 +14,12 @@ export class Scraping {
     async extractProducts() {
         let pageIndex = 1;
 
-        // for (;;) {
+        for (;;) {
             const products = this.page.locator(homeLocators.productList);
             const count = await products.count();
             console.log(`On page ${pageIndex} there are ${count} products`);
 
-            // for (let i = 0; i < count; i++) {
-                for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < count; i++) {
                 await products.nth(i).scrollIntoViewIfNeeded();
                 await products.nth(i).click();
 
@@ -72,19 +71,19 @@ export class Scraping {
             }
 
         //     // NEXT PAGE
-        //     const nextButton = this.page.locator(paginationLocators.nextPage);
-        //     if (await nextButton.count() === 0) break;
+            const nextButton = this.page.locator(paginationLocators.nextPage);
+            if (await nextButton.count() === 0) break;
 
-        //     const classes = await nextButton.getAttribute('class');
-        //     if (classes?.includes('pagination__arrow--disabled')) {
-        //         console.log('Last page reached');
-        //         break;
-        //     }
+            const classes = await nextButton.getAttribute('class');
+            if (classes?.includes('pagination__arrow--disabled')) {
+                console.log('Last page reached');
+                break;
+            }
 
-        //     await nextButton.click();
-        //     await this.page.waitForTimeout(500);
-        //     pageIndex++;
-        // }
+            await nextButton.click();
+            await this.page.waitForTimeout(500);
+            pageIndex++;
+        }
 
         await this.saveToExcel();
     }
