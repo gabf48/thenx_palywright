@@ -20,7 +20,7 @@ jobs:
       - run: npm install
 
       # 4️⃣ Install Playwright browsers
-      - run: npx playwright install --with-deps
+      - run: npx --yes playwright install --with-deps
 
       # 5️⃣ Run scraper cu GitHub Secrets
       - name: Run scraper
