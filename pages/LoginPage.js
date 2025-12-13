@@ -10,6 +10,7 @@ export class LoginPage {
   }
 
   async login(username, password) {
+    await this.page.waitForSelector(loginLocators.acceptCookies);
     await this.page.click(loginLocators.acceptCookies);
     await this.page.fill(loginLocators.usernameInput, username);
     await this.page.fill(loginLocators.passwordInput, password);
