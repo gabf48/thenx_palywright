@@ -22,10 +22,17 @@ jobs:
       # 4️⃣ Install Playwright browsers
       - run: npx playwright install --with-deps
 
-      # 5️⃣ Run scraper, injectează GitHub Secrets ca env
+      # 5️⃣ Run scraper cu GitHub Secrets
       - name: Run scraper
         env:
-          URL_LOGIN: ${{ secrets.URL_LOGIN}}
+          URL_LOGIN: ${{ secrets.URL_LOGIN }}
           LOGIN_EMAIL: ${{ secrets.LOGIN_EMAIL }}
           LOGIN_PASSWORD: ${{ secrets.LOGIN_PASSWORD }}
         run: npm run scrape
+
+      # 6️⃣ Upload rezultate (ex: folderul `results/`)
+      - name: Upload scrape results
+        uses: actions/upload-artifact@v3
+        with:
+          name: scrape-results
+          path: results/
