@@ -1,0 +1,31 @@
+name: Scrape Products
+
+on:
+  workflow_dispatch:  # rulezi manual din GitHub
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout cod
+      - uses: actions/checkout@v4
+
+      # 2️⃣ Setup Node.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 3️⃣ Install dependencies
+      - run: npm install
+
+      # 4️⃣ Install Playwright browsers
+      - run: npx playwright install --with-deps
+
+      # 5️⃣ Run scraper, injectează GitHub Secrets ca env
+      - name: Run scraper
+        env:
+          URL_LOGIN: ${{ secrets.URL_LOGIN}}
+          LOGIN_EMAIL: ${{ secrets.LOGIN_EMAIL }}
+          LOGIN_PASSWORD: ${{ secrets.LOGIN_PASSWORD }}
+        run: npm run scrape
