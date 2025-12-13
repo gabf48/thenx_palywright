@@ -4,7 +4,7 @@ import 'dotenv/config';
 
 (async () => {
   const browser = await chromium.launch({
-    headless: false,
+    headless: true,
     args: ['--start-maximized']
   });
 
