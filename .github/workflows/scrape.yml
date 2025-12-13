@@ -5,29 +5,33 @@ on:
 
 jobs:
   scrape:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # explicit, mai stabil pentru Playwright
 
     steps:
       # 1️⃣ Checkout cod
       - uses: actions/checkout@v4
 
-      # 2️⃣ Setup Node.js + Playwright
-      - uses: microsoft/playwright-github-action@v1
+      # 2️⃣ Setup Node.js
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
       # 3️⃣ Install dependencies
       - run: npm ci
 
-      # 4️⃣ Run scraper cu GitHub Secrets
+      # 4️⃣ Install Playwright + browsers
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      # 5️⃣ Run scraper cu GitHub Secrets
       - name: Run scraper
         env:
-          URL_LOGIN: ${{ secrets.URL_LOGIN }}
           LOGIN_EMAIL: ${{ secrets.LOGIN_EMAIL }}
           LOGIN_PASSWORD: ${{ secrets.LOGIN_PASSWORD }}
+          URL_LOGIN: ${{ secrets.URL_LOGIN }}
         run: npm run scrape
 
-      # 5️⃣ Upload rezultate (ex: folderul `results/`)
+      # 6️⃣ Upload rezultate
       - name: Upload scrape results
         uses: actions/upload-artifact@v4
         with:
