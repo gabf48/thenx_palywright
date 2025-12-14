@@ -40,11 +40,15 @@ export class Scraping {
                 (await this.safeText(this.page.locator(productLocators.productDescription_2))) ||
                 (await this.safeText(this.page.locator(productLocators.productDescription_3)));
 
+                // curățăm prefixul "Descriere"
                 if (descriptionText) {
-                    descriptionText = descriptionText
-                      .replace(/^Descriere\s*/i, '')
-                      .trim();
-                  }
+                descriptionText = descriptionText.replace(/^Descriere\s*/i, '').trim();
+                }
+
+                // dacă e golă, folosim valoarea din .env
+                if (!descriptionText) {
+                descriptionText = process.env.DESCRIPTION || ''; // fallback gol dacă nu există
+                }
 
                 // PRICE
                 const rawPrice = await this.safeText(this.page.locator(productLocators.productPrice));
