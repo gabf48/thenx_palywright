@@ -88,7 +88,10 @@ export class Scraping {
             }
 
             await nextButton.click();
-            await this.page.waitForTimeout(500);
+            await this.page.waitForSelector(homeLocators.productList, {
+                state: 'visible',
+                timeout: 10000
+              });
             pageIndex++;
         }
 
