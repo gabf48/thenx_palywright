@@ -68,8 +68,8 @@ export class Scraping {
                 this.productsData.push({
                     Title: titleText,
                     Description: descriptionText,
-                    Price_1: priceText*1.9,
-                    Price_2: priceText*2.1,
+                    Price_1: Number((priceText * 1.9).toFixed(2)),
+                    Price_2: Number((priceText * 2.1).toFixed(2)),
                     Images: imagesText
                 });
 
