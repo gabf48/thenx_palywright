@@ -35,9 +35,16 @@ export class Scraping {
                 );
                    
                 // DESCRIPTION
-                const descriptionText =
+                let descriptionText =
                 (await this.safeText(this.page.locator(productLocators.productDescription))) ||
-                (await this.safeText(this.page.locator(productLocators.productDescription_2)));
+                (await this.safeText(this.page.locator(productLocators.productDescription_2))) ||
+                (await this.safeText(this.page.locator(productLocators.productDescription_3)));
+
+                if (descriptionText) {
+                    descriptionText = descriptionText
+                      .replace(/^Descriere\s*/i, '')
+                      .trim();
+                  }
 
                 // PRICE
                 const rawPrice = await this.safeText(this.page.locator(productLocators.productPrice));
@@ -61,7 +68,8 @@ export class Scraping {
                 this.productsData.push({
                     Title: titleText,
                     Description: descriptionText,
-                    Price: priceText,
+                    Price_1: priceText*1.9,
+                    Price_2: priceText*2.1,
                     Images: imagesText
                 });
 
