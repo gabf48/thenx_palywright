@@ -5,12 +5,24 @@ import XLSX from 'xlsx';
 import path from 'path';
 import fs from 'fs';
 
+/**
+ * Page Object responsible for scraping products from the website.
+ */
 export class Scraping {
+    /**
+     * @param {import('playwright').Page} page - The Playwright page object
+     */
     constructor(page) {
         this.page = page;
         this.productsData = [];
     }
 
+    /**
+     * Extracts products from paginated pages, collects title, description, price, and images.
+     * Saves all products to Excel at the end.
+     * 
+     * @returns {Promise<void>}
+     */
     async extractProducts() {
         let pageIndex = 1;
 
@@ -24,30 +36,23 @@ export class Scraping {
                 await products.nth(i).click();
 
                 // wait load product details
-                await this.page.waitForSelector(
-                    productLocators.productTitle,
-                    { timeout: 15000 }
-                );
+                await this.page.waitForSelector(productLocators.productTitle, { timeout: 15000 });
 
                 // TITLE
-                const titleText = await this.safeText(
-                    this.page.locator(productLocators.productTitle)
-                );
-                   
+                const titleText = await this.safeText(this.page.locator(productLocators.productTitle));
+
                 // DESCRIPTION
                 let descriptionText =
-                (await this.safeText(this.page.locator(productLocators.productDescription))) ||
-                (await this.safeText(this.page.locator(productLocators.productDescription_2))) ||
-                (await this.safeText(this.page.locator(productLocators.productDescription_3)));
+                    (await this.safeText(this.page.locator(productLocators.productDescription))) ||
+                    (await this.safeText(this.page.locator(productLocators.productDescription_2))) ||
+                    (await this.safeText(this.page.locator(productLocators.productDescription_3)));
 
-                // curățăm prefixul "Descriere"
                 if (descriptionText) {
-                descriptionText = descriptionText.replace(/^Descriere\s*/i, '').trim();
+                    descriptionText = descriptionText.replace(/^Descriere\s*/i, '').trim();
                 }
 
-                // dacă e golă, folosim valoarea din .env
                 if (!descriptionText) {
-                descriptionText = process.env.DESCRIPTION || ''; // fallback gol dacă nu există
+                    descriptionText = process.env.DESCRIPTION || '';
                 }
 
                 // PRICE
@@ -59,9 +64,7 @@ export class Scraping {
                 try {
                     const imageLinksLocator = this.page.locator(productLocators.imageLinks);
                     const hrefs = await imageLinksLocator.evaluateAll(elements =>
-                        elements
-                            .map(el => el.getAttribute('href'))
-                            .filter(Boolean)
+                        elements.map(el => el.getAttribute('href')).filter(Boolean)
                     );
                     imagesText = hrefs.join(', ');
                 } catch {
@@ -81,7 +84,7 @@ export class Scraping {
                 await this.page.waitForTimeout(500);
             }
 
-             // NEXT PAGE
+            // NEXT PAGE
             const nextButton = this.page.locator(paginationLocators.nextPage);
             if (await nextButton.count() === 0) break;
 
@@ -92,18 +95,18 @@ export class Scraping {
             }
 
             await nextButton.click();
-            await this.page.waitForSelector(homeLocators.productList, {
-                state: 'visible',
-                timeout: 10000
-              });
+            await this.page.waitForSelector(homeLocators.productList, { state: 'visible', timeout: 10000 });
             pageIndex++;
         }
 
         await this.saveToExcel();
     }
 
-    // ================= HELPERS =================
-
+    /**
+     * Safely extracts text content from a locator, returns empty string if not found.
+     * @param {import('playwright').Locator} locator - The Playwright locator
+     * @returns {Promise<string>}
+     */
     async safeText(locator) {
         try {
             if (await locator.count() === 0) return '';
@@ -113,26 +116,27 @@ export class Scraping {
         }
     }
 
+    /**
+     * Normalizes raw price text into numeric format.
+     * @param {string} rawPrice
+     * @returns {string}
+     */
     normalizePrice(rawPrice) {
         if (!rawPrice) return '';
-
-        return rawPrice
-            .replace(/\s+/g, '')   
-            .replace('RON', '')    
-            .replace(/\./g, '')    
-            .replace(',', '.')     
-            .trim();
+        return rawPrice.replace(/\s+/g, '').replace('RON', '').replace(/\./g, '').replace(',', '.').trim();
     }
 
+    /**
+     * Saves all collected products to Excel file at ./results/products.xlsx
+     * @returns {Promise<void>}
+     */
     async saveToExcel() {
         const worksheet = XLSX.utils.json_to_sheet(this.productsData);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Products');
 
         const resultsDir = path.join(process.cwd(), 'results');
-        if (!fs.existsSync(resultsDir)) {
-            fs.mkdirSync(resultsDir);
-        }
+        if (!fs.existsSync(resultsDir)) fs.mkdirSync(resultsDir);
 
         const filePath = path.join(resultsDir, 'products.xlsx');
         XLSX.writeFile(workbook, filePath);
